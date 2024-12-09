@@ -16,12 +16,13 @@
 * If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef ORBEXTRACTOR_H
-#define ORBEXTRACTOR_H
+#ifndef ORBEXTRACTOR_INTEL_H
+#define ORBEXTRACTOR_INTEL_H
 
 #include <vector>
 #include <list>
 #include <opencv2/opencv.hpp>
+#include <orb_extractor.h>
 
 
 namespace ORB_SLAM3
@@ -40,7 +41,7 @@ public:
     bool bNoMore;
 };
 
-class ORBextractor
+class ORBextractor : public orb_extractor
 {
 public:
     
@@ -59,53 +60,33 @@ public:
                     cv::OutputArray _descriptors, std::vector<int> &vLappingArea);
 
     int inline GetLevels(){
-        return nlevels;}
+        return (int)get_num_scale_levels();}
 
     float inline GetScaleFactor(){
-        return scaleFactor;}
+        return get_scale_factor();}
 
     std::vector<float> inline GetScaleFactors(){
-        return mvScaleFactor;
+        return get_scale_factors() ;
     }
 
     std::vector<float> inline GetInverseScaleFactors(){
-        return mvInvScaleFactor;
+        return get_inv_scale_factors();
     }
 
     std::vector<float> inline GetScaleSigmaSquares(){
-        return mvLevelSigma2;
+        return get_level_sigma_sq();
     }
 
     std::vector<float> inline GetInverseScaleSigmaSquares(){
-        return mvInvLevelSigma2;
+        return get_inv_level_sigma_sq() ;
     }
 
-    std::vector<cv::Mat> mvImagePyramid;
+    void GetImagePyramid(std::vector<MatType> &image_pyramid){
+        get_image_pyramid(image_pyramid);
+    }
 
-protected:
+    //std::vector<cv::Mat> mvImagePyramid;
 
-    void ComputePyramid(cv::Mat image);
-    void ComputeKeyPointsOctTree(std::vector<std::vector<cv::KeyPoint> >& allKeypoints);    
-    std::vector<cv::KeyPoint> DistributeOctTree(const std::vector<cv::KeyPoint>& vToDistributeKeys, const int &minX,
-                                           const int &maxX, const int &minY, const int &maxY, const int &nFeatures, const int &level);
-
-    void ComputeKeyPointsOld(std::vector<std::vector<cv::KeyPoint> >& allKeypoints);
-    std::vector<cv::Point> pattern;
-
-    int nfeatures;
-    double scaleFactor;
-    int nlevels;
-    int iniThFAST;
-    int minThFAST;
-
-    std::vector<int> mnFeaturesPerLevel;
-
-    std::vector<int> umax;
-
-    std::vector<float> mvScaleFactor;
-    std::vector<float> mvInvScaleFactor;    
-    std::vector<float> mvLevelSigma2;
-    std::vector<float> mvInvLevelSigma2;
 };
 
 } //namespace ORB_SLAM
