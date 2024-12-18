@@ -428,9 +428,10 @@ namespace ORB_SLAM3
         cout << "vLappingArea: " << vLappingArea[0] << "-->" << vLappingArea[1] << endl;
         if(_image.empty())
             return -1;
-        vector<vector<KeyPoint>> vKeyPoints;
+        vector<vector<KeyPoint>> vKeyPoints(1);
         extract(_image, _mask, vKeyPoints, _descriptors);
         _keypoints = vKeyPoints[0];
+
 
         int monoIndex = 0;
         if (vLappingArea[0] == vLappingArea[1]){
