@@ -47,6 +47,22 @@ find_package(Eigen3 3.1.0 REQUIRED)
 find_package(Pangolin REQUIRED)
 find_package(realsense2)
 
+#find_package(orblze REQUIRED)
+#if(NOT orblze_LIBS)
+#  message(FATAL_ERROR
+#    "GPU Level-Zero ORB Level Zero loader is not found. "
+#    "You may need to install oneAPI Level Zero loader to fix this issue.")
+#else()
+#  message(STATUS
+#    "Found GPU Level-Zero ORB ! \n"
+#    " INCLUDE path ${ORBLZE_INCLUDE_DIR} \n"
+#    " LIB path ${ORBLZE_LIB_DIR} \n"
+#    " Level-zero prebuilt KERNEL path ${ORBLZE_KERNEL_DIR}\n"
+#    " LIB linker options: -l${orblze_LIBS}"
+#    " LIB linker options: -l${orblzeocvfree_LIBS}"
+#    )
+#endif()
+
 include_directories(
 ${PROJECT_SOURCE_DIR}
 ${PROJECT_SOURCE_DIR}/include
@@ -54,6 +70,7 @@ ${PROJECT_SOURCE_DIR}/include/CameraModels
 ${PROJECT_SOURCE_DIR}/Thirdparty/Sophus
 ${EIGEN3_INCLUDE_DIR}
 ${Pangolin_INCLUDE_DIRS}
+${ORBLZE_INCLUDE_DIR}
 )
 
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib)
@@ -126,6 +143,7 @@ ${EIGEN3_LIBS}
 ${Pangolin_LIBRARIES}
 ${PROJECT_SOURCE_DIR}/Thirdparty/DBoW2/lib/libDBoW2.so
 ${PROJECT_SOURCE_DIR}/Thirdparty/g2o/lib/libg2o.so
+#${orblze_LIBS}
 -lboost_serialization
 -lcrypto
 -lgpu_orb

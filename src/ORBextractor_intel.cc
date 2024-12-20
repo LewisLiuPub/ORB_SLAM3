@@ -410,7 +410,9 @@ namespace ORB_SLAM3
                                int _iniThFAST, int _minThFAST):
             
             orb_extractor(_nfeatures, _scaleFactor, _nlevels, _iniThFAST, _minThFAST, 1)
-    {}
+    {
+        set_gpu_kernel_path("/usr/lib/x86_64-linux-gnu");
+    }
 
     static void computeOrientation(const Mat& image, vector<KeyPoint>& keypoints, const vector<int>& umax)
     {
@@ -426,12 +428,47 @@ namespace ORB_SLAM3
     {
         //cout << "[ORBextractor]: Max Features: " << nfeatures << endl;
         cout << "vLappingArea: " << vLappingArea[0] << "-->" << vLappingArea[1] << endl;
-        if(_image.empty())
+        //static int reentrance = 0;
+        //++reentrance;
+        //if(reentrance > 1){
+        //    cout << "This Func can't be reentered!" << reentrance <<"\n";
+        //    return -1;
+        //}
+        if(_image.empty()){
+	    cout << "Warning: The Input image is empty!\n";
             return -1;
+	    }
+	    cout << "Input Image size: " << _image.size() << endl;
         vector<vector<KeyPoint>> vKeyPoints(1);
-        extract(_image, _mask, vKeyPoints, _descriptors);
-        _keypoints = vKeyPoints[0];
+	    cout << "Before extraction!\n";
+        vector<Mat> all_images(1),all_masks(1),  all_descriptors(1);
+        all_images[0] = _image.getMat();
+        all_masks[0] = _mask.getMat();
+        cout << "Input mask.size=" << _mask.getMat().size() << "\n";
+        all_descriptors[0] = _descriptors.getMat();
 
+        InputArray in_image_array(all_images);
+        //InputArray in_image_mask_array(all_masks);
+        const cv::_InputArray in_image_mask_array;
+        OutputArray descriptor_array(all_descriptors);
+        extract(in_image_array, in_image_mask_array, vKeyPoints, descriptor_array);
+        cout << "After extraction!, vKeyPoints.size=" << vKeyPoints.size() << "\n";
+        _keypoints = vKeyPoints[0];
+        cout << "_keypoints.size()=" << _keypoints.size() << endl;
+        //std::vector<cv::Mat>& arr_descriptors = *(std::vector<cv::Mat>*)descriptor_array.getObj();
+        //cout << "arr_descriptors.size=" << arr_descriptors.size() << " (should be 1)!\n";
+        cout << "descriptors[0].size=" << all_descriptors[0].size() << " (should = _keypoints.size)!\n";
+
+        auto output_type = _descriptors.kind();
+        if(output_type == _InputArray::MAT){
+            cout << "Extraction: Assign ORB Descriptors...\n";
+            _descriptors.assign(all_descriptors[0].clone());
+        } else {
+            cout << "WARN::the OUTPUT _descriptors is NOT a MAT!\n";
+        }
+        cout << "_descriptors.getMat().size=" << _descriptors.getMat().size() << " (should = _keypoints.size)!\n";
+        //cout << "arr_descriptors[0].size=" << arr_descriptors[0].size() << " (should = _keypoints.size)!\n";
+        //if(arr_descriptors.size() == 1)
 
         int monoIndex = 0;
         if (vLappingArea[0] == vLappingArea[1]){
